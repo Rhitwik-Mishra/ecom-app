@@ -1,10 +1,18 @@
-# Build stage
-FROM maven:3.9.6-eclipse-temurin-21 AS build
-COPY . .
+# Stage 1: Build the application using Maven
+FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY .mvn .mvn
+RUN mvn dependency:go-offline
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Runtime stage
-FROM eclipse-temurin:21-jdk-jammy
-COPY --from=build /target/ecommerce-app-0.0.1-SNAPSHOT.jar demo.jar
+# Stage 2: Create a slim, runnable image
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+# Copy the built JAR file from the 'build' stage
+COPY --from=build /app/target/*.jar app.jar
+# Expose the port the app runs on
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","demo.jar"]
+# The command to run the application
+ENTRYPOINT ["java","-jar","app.jar"]
