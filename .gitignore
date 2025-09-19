@@ -1,0 +1,11 @@
+# Node dependencies
+/client/node_modules
+/client/dist
+
+# Java/Maven build output
+/server/target
+
+# IDE files
+.vscode/
+.idea/
+*.iml
